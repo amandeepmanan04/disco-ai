@@ -142,14 +142,13 @@ const CreatureSVG = ({ stage, palette }: { stage: number; palette: typeof colorP
       {stage === 0 && (
         <g>
           {/* body */}
-          <ellipse cx="60" cy="98" rx="34" ry="32" fill={body} />
+           <polygon points="44,72 38,56 54,68" fill={body} />
+          <polygon points="76,72 82,56 66,68" fill={body} />
           {/* belly */}
           <ellipse cx="60" cy="108" rx="22" ry="18" fill={belly} opacity="0.5" />
           {/* ears */}
-          <ellipse cx="34" cy="72" rx="11" ry="14" fill={body} transform="rotate(-12 34 72)" />
-          <ellipse cx="86" cy="72" rx="11" ry="14" fill={body} transform="rotate(12 86 72)" />
-          <ellipse cx="34" cy="72" rx="6" ry="8" fill={earInner} opacity="0.6" transform="rotate(-12 34 72)" />
-          <ellipse cx="86" cy="72" rx="6" ry="8" fill={earInner} opacity="0.6" transform="rotate(12 86 72)" />
+          <polygon points="44,72 40,60 52,70" fill={earInner} opacity="0.5" />
+          <polygon points="76,72 80,60 68,70" fill={earInner} opacity="0.5" />
           {/* eyes */}
           <ellipse cx="48" cy="90" rx="10" ry="11" fill="white" />
           <ellipse cx="72" cy="90" rx="10" ry="11" fill="white" />
@@ -178,14 +177,13 @@ const CreatureSVG = ({ stage, palette }: { stage: number; palette: typeof colorP
           {/* tail */}
           <path d="M92 112 Q112 98 108 80 Q105 88 100 85 Q104 98 94 108" fill={accent} />
           {/* body */}
-          <ellipse cx="60" cy="96" rx="38" ry="36" fill={body} />
+         <polygon points="42,72 36,54 54,68" fill={body} />
+        <polygon points="78,72 84,54 66,68" fill={body} />
           {/* belly */}
           <ellipse cx="60" cy="108" rx="25" ry="20" fill={belly} opacity="0.55" />
           {/* ears */}
-          <ellipse cx="30" cy="66" rx="13" ry="17" fill={body} transform="rotate(-14 30 66)" />
-          <ellipse cx="90" cy="66" rx="13" ry="17" fill={body} transform="rotate(14 90 66)" />
-          <ellipse cx="30" cy="66" rx="7" ry="10" fill={earInner} opacity="0.6" transform="rotate(-14 30 66)" />
-          <ellipse cx="90" cy="66" rx="7" ry="10" fill={earInner} opacity="0.6" transform="rotate(14 90 66)" />
+         <polygon points="42,72 39,58 52,70" fill={earInner} opacity="0.5" />
+         <polygon points="78,72 81,58 68,70" fill={earInner} opacity="0.5" />
           {/* stubby arms */}
           <ellipse cx="22" cy="104" rx="10" ry="8" fill={body} transform="rotate(25 22 104)" />
           <ellipse cx="98" cy="104" rx="10" ry="8" fill={body} transform="rotate(-25 98 104)" />
@@ -372,7 +370,7 @@ const ColorPicker = ({ onChoose }: ColorPickerProps) => (
           style={{ background: pal.bg, border: "2px solid var(--border)", borderRadius: 12, padding: 16, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, transition: "border-color 0.2s" }}
           onMouseEnter={e => e.currentTarget.style.borderColor = pal.body}
           onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}>
-          <CreatureSVG stage={0} palette={pal} />
+          <CreatureSVG stage={2} palette={pal} />
           <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>{pal.name}</span>
         </motion.button>
       ))}
@@ -419,7 +417,7 @@ const LearnerProfile = ({ correctAnswers, streak, totalAnswered, chosenColor, on
           transition={{ type: "spring", stiffness: 200, damping: 15 }}
           style={{ position: "relative", flexShrink: 0, width: 112, height: 112, borderRadius: 16, background: palette.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <motion.div animate={{ y: [0, -4, 0] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}>
-            <CreatureSVG stage={stage} palette={palette} />
+           <CreatureSVG stage={Math.max(stage, 2)} palette={palette} />
           </motion.div>
           {streak >= 3 && (
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
@@ -923,7 +921,7 @@ const Leaderboard = () => {
         {topThree.map((learner, i) => {
           const rank  = i + 1;
           const medal = rankMedal(rank);
-          const stage = getMascotStage(learner.avgAccuracy / 10);
+          const stage = getMascotStage(learner.completedModules * 4);
           const pal   = colorPalettes[learner.color as keyof typeof colorPalettes] || colorPalettes.flame;
           return (
             <motion.div key={learner.id}
@@ -969,7 +967,7 @@ const Leaderboard = () => {
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {rest.map((learner, i) => {
           const rank  = i + 4;
-          const stage = getMascotStage(learner.avgAccuracy / 10);
+          const stage = 2;
           const pal   = colorPalettes[learner.color as keyof typeof colorPalettes] || colorPalettes.flame;
           return (
             <motion.div key={learner.id}
