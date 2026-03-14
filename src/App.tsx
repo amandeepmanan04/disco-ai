@@ -192,7 +192,7 @@ const CreatureSVG = ({ stage, palette }: { stage: number; palette: typeof colorP
           <ellipse cx="74" cy="88" rx="11" ry="12" fill="white" />
           <ellipse cx="47" cy="90" rx="7" ry="8" fill={eye} />
           <ellipse cx="75" cy="90" rx="7" ry="8" fill={eye} />
-          <circle cx="51" cy="87" r="3" fill="white" />
+          <circle cx="50" cy="87" r="3" fill="white" />
           <circle cx="79" cy="87" r="3" fill="white" />
           <circle cx="45" cy="93" r="1.3" fill="white" />
           <circle cx="73" cy="93" r="1.3" fill="white" />
@@ -218,12 +218,12 @@ const CreatureSVG = ({ stage, palette }: { stage: number; palette: typeof colorP
           {/* body */}
           <ellipse cx="60" cy="94" rx="42" ry="40" fill={body} />
           {/* belly */}
-          <ellipse cx="60" cy="108" rx="28" ry="23" fill={belly} opacity="0.55" />
+          <ellipse cx="60" cy="108" rx="28" ry="23" fill={belly} opacity="0.5" />
           {/* ears - pointy cat-like */}
           <polygon points="26,58 18,36 40,52" fill={body} />
           <polygon points="94,58 102,36 80,52" fill={body} />
-          <polygon points="26,58 22,42 38,54" fill={earInner} opacity="0.5" />
-          <polygon points="94,58 98,42 82,54" fill={earInner} opacity="0.5" />
+          <polygon points="26,58 22,44 38,56" fill={earInner} opacity="0.5" />
+          <polygon points="94,58 98,44 82,56" fill={earInner} opacity="0.5" />
           {/* arms */}
           <ellipse cx="18" cy="102" rx="12" ry="9" fill={body} transform="rotate(20 18 102)" />
           <ellipse cx="102" cy="102" rx="12" ry="9" fill={body} transform="rotate(-20 102 102)" />
@@ -283,17 +283,17 @@ const CreatureSVG = ({ stage, palette }: { stage: number; palette: typeof colorP
           <circle cx="76" cy="91" r="1.8" fill="white" />
           {/* star sparkles in eyes */}
           <circle cx="47" cy="93" r="1.2" fill={glow} opacity="0.8" />
-          <circle cx="81" cy="93" r="1.2" fill={glow} opacity="0.8" />
+          <circle cx="83" cy="93" r="1.2" fill={glow} opacity="0.8" />
           {/* cheeks */}
           <ellipse cx="28" cy="96" rx="11" ry="6.5" fill={cheek} opacity="0.45" />
           <ellipse cx="92" cy="96" rx="11" ry="6.5" fill={cheek} opacity="0.45" />
           {/* nose */}
           <ellipse cx="60" cy="97" rx="5" ry="3.5" fill={accent} />
           {/* big happy smile */}
-          <path d="M50 107 Q60 120 70 107" stroke={accent} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+          <path d="M50 107 Q60 120 70 107" stroke={accent} strokeWidth="3" fill="none" strokeLinecap="round" />
           {/* feet */}
-          <ellipse cx="40" cy="132" rx="19" ry="9" fill={accent} />
-          <ellipse cx="80" cy="132" rx="19" ry="9" fill={accent} />
+          <ellipse cx="38" cy="133" rx="21" ry="10" fill={accent} />
+          <ellipse cx="82" cy="133" rx="21" ry="10" fill={accent} />
         </g>
       )}
 
@@ -765,18 +765,23 @@ const LearnerView = () => {
 
 // ── Instructor Dashboard ──────────────────────────────────────────────────────
 const InstructorDashboard = () => {
+  const [actionTaken, setActionTaken] = useState<{[key: string]: string}>({});
+
   const atRisk = learners.filter(l => l.atRisk);
   const avgAccuracy = Math.round(learners.reduce((a, l) => a + l.avgAccuracy, 0) / learners.length);
   const avgTime = (learners.reduce((a, l) => a + l.avgResponseTime, 0) / learners.length).toFixed(1);
-  // const totalCompleted = learners.reduce((a, l) => a + l.completedModules, 0); // unused
-
+ 
+  const handleAction = (learnerId: string, action: string) => {
+    setActionTaken(prev => ({ ...prev, [learnerId]: action }));
+  };
+ 
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "32px 16px", display: "flex", flexDirection: "column", gap: 24 }}>
       <div>
         <h1 style={{ fontSize: 28, fontWeight: 800, color: "var(--fg)", marginBottom: 4 }}>Instructor Dashboard</h1>
         <p style={{ color: "var(--muted)", fontSize: 15 }}>Monitor learner progress and identify areas needing attention</p>
       </div>
-
+ 
       {/* Stats row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14 }}>
         {[
@@ -792,17 +797,77 @@ const InstructorDashboard = () => {
           </div>
         ))}
       </div>
-
+ 
+      {/* At-Risk Learners with actions */}
+      {atRisk.length > 0 && (
+        <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 14, padding: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <span style={{ fontSize: 18 }}>⚠️</span>
+            <h3 style={{ fontWeight: 700, fontSize: 15, color: "#ef4444" }}>At-Risk Learners</h3>
+            <span style={{ fontSize: 12, color: "var(--muted)", marginLeft: 4 }}>Action required</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {atRisk.map(l => (
+              <motion.div key={l.id} layout
+                style={{
+                  padding: "16px", background: "rgba(239,68,68,0.04)",
+                  border: "1px solid rgba(239,68,68,0.15)", borderRadius: 12
+                }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: actionTaken[l.id] ? 0 : 12 }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: "50%",
+                    background: "rgba(239,68,68,0.15)", display: "flex",
+                    alignItems: "center", justifyContent: "center",
+                    fontWeight: 700, fontSize: 13, color: "#ef4444", flexShrink: 0
+                  }}>{l.avatar}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: "var(--fg)" }}>{l.name}</div>
+                    <div style={{ fontSize: 12, color: "var(--muted)" }}>Last active: {l.lastActive} · {l.avgAccuracy}% accuracy · {l.completedModules}/{l.totalModules} modules</div>
+                  </div>
+                  {actionTaken[l.id] && (
+                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
+                      style={{ fontSize: 12, fontWeight: 600, padding: "4px 10px", borderRadius: 999, background: "rgba(34,197,94,0.1)", color: "#22c55e" }}>
+                      ✓ {actionTaken[l.id]}
+                    </motion.span>
+                  )}
+            
+                </div>
+                {!actionTaken[l.id] && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                    style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {[
+                      { label: "📧 Send nudge", action: "Nudge sent" },
+                      { label: "📅 Schedule check-in", action: "Check-in scheduled" },
+                      { label: "👁 View progress", action: "Progress viewed" },
+                    ].map(btn => (
+                      <button key={btn.label} onClick={() => handleAction(l.id, btn.action)}
+                        style={{
+                          padding: "8px 14px", borderRadius: 10,
+                          border: "1px solid var(--border)", background: "var(--card)",
+                          cursor: "pointer", fontSize: 13, fontWeight: 500,
+                          color: "var(--fg)", transition: "all 0.15s"
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.color = "var(--primary)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--fg)"; }}>
+                        {btn.label}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+ 
+      {/* Module Difficulty + Learner Accuracy */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        {/* Module Difficulty */}
         <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 14, padding: 20 }}>
           <h3 style={{ fontWeight: 700, fontSize: 15, color: "var(--fg)", marginBottom: 4 }}>Module Difficulty</h3>
           <p style={{ fontSize: 12, color: "var(--muted)", marginBottom: 16 }}>Fail rate by module</p>
           <SimpleBar data={moduleFriction.map(m => ({ label: m.moduleName.split(" ").slice(0, 3).join(" "), value: m.failRate, suffix: "%" }))}
             color={d => d.value > 40 ? "#ef4444" : d.value > 30 ? "#f97316" : "#22c55e"} />
         </div>
-
-        {/* Learner Accuracy */}
         <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 14, padding: 20 }}>
           <h3 style={{ fontWeight: 700, fontSize: 15, color: "var(--fg)", marginBottom: 4 }}>Learner Accuracy</h3>
           <p style={{ fontSize: 12, color: "var(--muted)", marginBottom: 16 }}>Accuracy per learner</p>
@@ -810,32 +875,7 @@ const InstructorDashboard = () => {
             color={d => d.value >= 80 ? "#22c55e" : d.value >= 60 ? "#f97316" : "#ef4444"} maxVal={100} />
         </div>
       </div>
-
-      {/* At-Risk Learners */}
-      {atRisk.length > 0 && (
-        <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 14, padding: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-            <span style={{ fontSize: 18 }}>⚠️</span>
-            <h3 style={{ fontWeight: 700, fontSize: 15, color: "#ef4444" }}>At-Risk Learners</h3>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {atRisk.map(l => (
-              <div key={l.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 16px", background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.15)", borderRadius: 10 }}>
-                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(239,68,68,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, color: "#ef4444", flexShrink: 0 }}>{l.avatar}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 14, color: "var(--fg)" }}>{l.name}</div>
-                  <div style={{ fontSize: 12, color: "var(--muted)" }}>Last active: {l.lastActive}</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#ef4444" }}>{l.avgAccuracy}%</div>
-                  <div style={{ fontSize: 12, color: "var(--muted)" }}>{l.completedModules}/{l.totalModules} modules</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
+ 
       {/* All Learners Table */}
       <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 14, padding: 20 }}>
         <h3 style={{ fontWeight: 700, fontSize: 15, color: "var(--fg)", marginBottom: 16 }}>All Learners</h3>
@@ -1013,9 +1053,133 @@ const Leaderboard = () => {
   );
 };
 
+const MorningPopup = ({ onClose, onGoToDashboard }: { onClose: () => void; onGoToDashboard: () => void }) => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    style={{
+      position: "fixed", inset: 0, zIndex: 100,
+      background: "rgba(0,0,0,0.5)",
+      display: "flex", alignItems: "center", justifyContent: "center", padding: 16
+    }}
+    onClick={onClose}
+  >
+    <motion.div
+      initial={{ scale: 0.9, y: 20 }}
+      animate={{ scale: 1, y: 0 }}
+      exit={{ scale: 0.9, y: 20 }}
+      onClick={e => e.stopPropagation()}
+      style={{
+        background: "var(--card)", borderRadius: 20, padding: 32,
+        maxWidth: 420, width: "100%",
+        boxShadow: "0 24px 48px rgba(0,0,0,0.2)"
+      }}
+    >
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+        <div style={{
+          width: 48, height: 48, borderRadius: 14,
+          background: "var(--primary)", display: "flex",
+          alignItems: "center", justifyContent: "center", fontSize: 24
+        }}>🎓</div>
+        <div>
+          <p style={{ fontSize: 12, color: "var(--muted)", marginBottom: 2 }}>Monday morning</p>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: "var(--fg)" }}>Good morning, Emma! 👋</h2>
+        </div>
+        <button onClick={onClose} style={{
+          marginLeft: "auto", border: "none", background: "var(--secondary)",
+          borderRadius: 8, width: 32, height: 32, cursor: "pointer",
+          color: "var(--muted)", fontSize: 16
+        }}>✕</button>
+      </div>
+ 
+      {/* Alert banner */}
+      <div style={{
+        background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)",
+        borderRadius: 12, padding: "14px 16px", marginBottom: 16,
+        display: "flex", alignItems: "center", gap: 12
+      }}>
+        <span style={{ fontSize: 24 }}>⚠️</span>
+        <div>
+          <p style={{ fontWeight: 700, fontSize: 14, color: "#ef4444", marginBottom: 2 }}>3 learners need your attention</p>
+          <p style={{ fontSize: 13, color: "var(--muted)" }}>Marcus, James and Tom haven't been active in days and are falling behind.</p>
+        </div>
+      </div>
+ 
+      {/* Weekly summary */}
+      <div style={{
+        background: "var(--secondary)", borderRadius: 12, padding: "14px 16px",
+        marginBottom: 20, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12
+      }}>
+        {[
+          { label: "Avg Accuracy", value: "68%", color: "#f97316" },
+          { label: "Completions", value: "24/40", color: "var(--primary)" },
+          { label: "Active Today", value: "5/8", color: "#22c55e" },
+        ].map(s => (
+          <div key={s.label} style={{ textAlign: "center" }}>
+            <p style={{ fontSize: 20, fontWeight: 800, color: s.color }}>{s.value}</p>
+            <p style={{ fontSize: 11, color: "var(--muted)" }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
+ 
+      {/* Actions */}
+      <div style={{ display: "flex", gap: 10 }}>
+        <button onClick={onClose} style={{
+          flex: 1, padding: "12px", borderRadius: 12, border: "1px solid var(--border)",
+          background: "transparent", cursor: "pointer", fontSize: 14,
+          fontWeight: 600, color: "var(--muted)"
+        }}>
+          Remind me later
+        </button>
+        <button onClick={onGoToDashboard} style={{
+          flex: 2, padding: "12px", borderRadius: 12, border: "none",
+          background: "var(--primary)", cursor: "pointer", fontSize: 14,
+          fontWeight: 600, color: "white"
+        }}>
+          View Dashboard →
+        </button>
+      </div>
+    </motion.div>
+  </motion.div>
+);
+
+const PluginTabs = () => {
+  const [activeTab, setActiveTab] = useState("learner");
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 4, padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
+        {[
+          { key: "learner", label: "📖 Learner" },
+          { key: "leaderboard", label: "🏆 Leaderboard" },
+        ].map(tab => (
+          <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+            style={{
+              padding: "8px 16px", borderRadius: 10, border: "none", cursor: "pointer",
+              fontSize: 13, fontWeight: 600, transition: "all 0.15s",
+              background: activeTab === tab.key ? "var(--primary)" : "transparent",
+              color: activeTab === tab.key ? "white" : "var(--muted)",
+            }}>
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      {activeTab === "learner" ? <LearnerView /> : <Leaderboard />}
+    </div>
+  );
+};
+
 export default function App() {
   const [view, setView] = useState("learner");
-
+  const [showPopup, setShowPopup] = useState(true);
+  const [showPlugin, setShowPlugin] = useState(false);
+ 
+  const handleGoToDashboard = () => {
+    setShowPopup(false);
+    setView("instructor");
+  };
+ 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", fontFamily: "var(--font-body)" }}>
       <style>{`
@@ -1033,7 +1197,37 @@ export default function App() {
         * { box-sizing: border-box; margin: 0; padding: 0; }
         button { font-family: inherit; }
       `}</style>
-
+ 
+      {/* Morning popup */}
+      <AnimatePresence>
+        {showPopup && (
+          <MorningPopup
+            onClose={() => setShowPopup(false)}
+            onGoToDashboard={handleGoToDashboard}
+          />
+        )}
+      </AnimatePresence>
+ 
+      {/* Plugin popup */}
+      <AnimatePresence>
+        {showPlugin && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setShowPlugin(false)}
+            style={{ position: "fixed", inset: 0, zIndex: 60, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9 }}
+              onClick={e => e.stopPropagation()}
+              style={{ background: "var(--bg)", borderRadius: 20, width: "100%", maxWidth: 480, maxHeight: "80vh", overflowY: "auto", boxShadow: "0 24px 48px rgba(0,0,0,0.2)" }}>
+              <div style={{ padding: "16px 20px", background: "var(--card)", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 10, borderRadius: "20px 20px 0 0" }}>
+                <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 16 }}>🎓</div>
+                <span style={{ fontWeight: 700, fontSize: 16, color: "var(--fg)" }}>Disco — Learner Path</span>
+                <button onClick={() => setShowPlugin(false)} style={{ marginLeft: "auto", border: "none", background: "var(--secondary)", borderRadius: 8, width: 28, height: 28, cursor: "pointer", color: "var(--muted)" }}>✕</button>
+              </div>
+              <PluginTabs />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+ 
       {/* Nav */}
       <nav style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", borderBottom: "1px solid var(--border)" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 56 }}>
@@ -1055,12 +1249,17 @@ export default function App() {
               </button>
             ))}
           </div>
+          {/* Plugin button */}
+          <button onClick={() => setShowPlugin(true)}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 10, border: "1px solid var(--border)", background: "var(--card)", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "var(--primary)" }}>
+            🧩 Open Plugin
+          </button>
         </div>
       </nav>
-
+ 
       <AnimatePresence mode="wait">
         <motion.div key={view} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-         {view === "learner" ? <LearnerView /> : view === "leaderboard" ? <Leaderboard /> : <InstructorDashboard />}
+          {view === "learner" ? <LearnerView /> : view === "leaderboard" ? <Leaderboard /> : <InstructorDashboard />}
         </motion.div>
       </AnimatePresence>
     </div>
